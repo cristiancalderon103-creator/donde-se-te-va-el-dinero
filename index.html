@@ -1,0 +1,1153 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline'; img-src data: blob:; connect-src 'none'; form-action 'none'; base-uri 'none'">
+<meta name="referrer" content="no-referrer">
+<meta name="description" content="Calculadora gratuita y privada: descubre qué gasto se come el margen de tu negocio en 30 segundos.">
+<meta property="og:title" content="¿Dónde se te va el dinero?">
+<meta property="og:description" content="Calculadora gratuita y privada para negocios pequeños y autónomos. Tus datos no salen de tu navegador.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230e1014'/%3E%3Ctext x='32' y='45' font-size='38' text-anchor='middle' fill='%23f5b942' font-family='Arial' font-weight='700'%3E%E2%82%AC%3C/text%3E%3C/svg%3E">
+<title>¿Dónde se te va el dinero?</title>
+<style>
+:root {
+  --fondo: #0e1014;
+  --tarjeta: #171a21;
+  --tarjeta-2: #1e222b;
+  --borde: #2a2f3a;
+  --texto: #eceef3;
+  --suave: #a3abba;
+  --acento: #f5b942;
+  --rojo: #ff7a6b;
+  --verde: #45d39a;
+  --azul: #7fb3ff;
+  --papel: #f6f1e4;
+  --tinta: #22201b;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0;
+  background: var(--fondo);
+  color: var(--texto);
+  font: 16px/1.45 system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  overflow-wrap: anywhere;
+}
+main { max-width: 560px; margin: 0 auto; padding: 16px 16px 48px; }
+h1 { font-size: 1.7rem; line-height: 1.15; margin: 8px 0 6px; letter-spacing: -0.01em; }
+h2 { font-size: 1.05rem; margin: 0 0 10px; color: var(--acento); }
+h3 { font-size: 1rem; margin: 22px 0 10px; }
+.subtitulo { margin: 0 0 10px; color: var(--suave); }
+.privacidad { margin: 0; font-size: 0.88rem; color: var(--verde); }
+.nota { color: var(--suave); font-size: 0.88rem; margin: 6px 0 12px; }
+.bloque { background: var(--tarjeta); border: 1px solid var(--borde); border-radius: 14px; padding: 16px; margin-top: 16px; }
+.visualmente-oculto { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+[hidden] { display: none !important; }
+
+/* Selector de sector */
+.sectores { border: 0; padding: 0; margin: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.sectores label {
+  display: flex; align-items: center; min-height: 52px; padding: 10px 12px;
+  background: var(--tarjeta-2); border: 1px solid var(--borde); border-radius: 10px;
+  cursor: pointer; font-size: 0.92rem; line-height: 1.2;
+}
+.sectores input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+.sectores input:checked + label { border-color: var(--acento); background: #2a2516; color: #fff; box-shadow: inset 0 0 0 1px var(--acento); }
+.sectores input:focus-visible + label { outline: 3px solid var(--azul); outline-offset: 2px; }
+.idioma { margin-bottom: 10px; }
+
+/* Botones */
+.botones { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
+.boton {
+  font: inherit; font-weight: 600; border-radius: 10px; padding: 11px 16px; min-height: 44px;
+  border: 1px solid var(--borde); background: var(--tarjeta-2); color: var(--texto); cursor: pointer;
+}
+.boton.primario { background: var(--acento); color: #1a1406; border-color: var(--acento); }
+.boton.secundario { border-color: var(--acento); color: var(--acento); }
+.boton.fantasma { background: transparent; color: var(--suave); }
+.boton:disabled { opacity: 0.55; cursor: not-allowed; }
+.boton:focus-visible, input:focus-visible { outline: 3px solid var(--azul); outline-offset: 2px; }
+.aviso-ejemplo {
+  background: #3a2c08; color: #ffd98a; border: 1px dashed var(--acento); border-radius: 8px;
+  padding: 8px 10px; font-size: 0.85rem; font-weight: 600; margin: 0 0 12px;
+}
+
+/* Entradas */
+.entradas { display: grid; gap: 14px; }
+.campo label { display: block; font-weight: 600; }
+.campo .ayuda { display: block; font-size: 0.82rem; color: var(--suave); margin: 2px 0 6px; }
+.caja { display: flex; align-items: stretch; }
+.caja input {
+  flex: 1; min-width: 0; font: inherit; font-size: 1.1rem; padding: 10px 12px; min-height: 46px;
+  background: #0b0d11; color: var(--texto); border: 1px solid var(--borde); border-right: 0;
+  border-radius: 10px 0 0 10px; font-variant-numeric: tabular-nums;
+}
+.caja .unidad { display: flex; align-items: center; padding: 0 12px; border: 1px solid var(--borde); border-radius: 0 10px 10px 0; color: var(--suave); background: var(--tarjeta-2); }
+.campo.ingreso .caja input { border-color: #3c4a3f; }
+.campo .vivo { font-size: 0.82rem; color: var(--suave); margin-top: 4px; min-height: 1.2em; }
+.campo .vivo.alerta { color: #ffb3a8; }
+.campo .error { color: var(--rojo); font-size: 0.85rem; margin-top: 4px; }
+.campo input[aria-invalid="true"] { border-color: var(--rojo); }
+
+/* Cifras grandes */
+.cifras { display: grid; gap: 10px; }
+.cifra { background: var(--tarjeta-2); border: 1px solid var(--borde); border-radius: 12px; padding: 12px 14px; }
+.cifra .etiqueta { font-size: 0.82rem; color: var(--suave); text-transform: uppercase; letter-spacing: 0.04em; }
+.cifra .valor { font-size: 2rem; font-weight: 800; line-height: 1.1; font-variant-numeric: tabular-nums; }
+.cifra .extra { font-size: 0.88rem; color: var(--suave); }
+.cifra.negativo .valor { color: var(--rojo); }
+.cifra.fuga .valor { color: var(--acento); }
+.fuga-nota { margin-top: 10px; }
+
+/* Ticket */
+.ticket {
+  background: var(--papel); color: var(--tinta); margin: 16px 0 0; padding: 18px 16px 22px;
+  font-family: ui-monospace, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace; font-size: 0.9rem;
+  position: relative;
+  -webkit-mask: radial-gradient(circle 6px at 50% 0, transparent 98%, #000) top/14px 51% repeat-x,
+                radial-gradient(circle 6px at 50% 100%, transparent 98%, #000) bottom/14px 51% repeat-x;
+          mask: radial-gradient(circle 6px at 50% 0, transparent 98%, #000) top/14px 51% repeat-x,
+                radial-gradient(circle 6px at 50% 100%, transparent 98%, #000) bottom/14px 51% repeat-x;
+}
+.ticket h3 { margin: 0 0 8px; text-align: center; font-size: 0.95rem; letter-spacing: 0.08em; text-transform: uppercase; }
+.ticket .fila { display: flex; justify-content: space-between; gap: 8px; padding: 2px 0; }
+.ticket .fila span:last-child { white-space: nowrap; font-variant-numeric: tabular-nums; }
+.ticket .sep { border-top: 1px dashed #8a8475; margin: 6px 0; }
+.ticket .total { font-weight: 800; font-size: 1rem; }
+.ticket .pc { color: #6b6658; font-size: 0.8rem; }
+
+/* Semáforo */
+.semaforo { list-style: none; padding: 0; margin: 0; display: grid; gap: 10px; }
+.semaforo li { background: var(--tarjeta-2); border: 1px solid var(--borde); border-left-width: 6px; border-radius: 10px; padding: 10px 12px; }
+.semaforo .cab { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+.semaforo .nombre { font-weight: 700; }
+.semaforo .estado { font-size: 0.78rem; font-weight: 800; letter-spacing: 0.05em; padding: 2px 8px; border-radius: 999px; white-space: nowrap; }
+.semaforo .datos { font-size: 0.88rem; color: var(--suave); margin-top: 4px; }
+.semaforo .detalle { font-size: 0.9rem; margin-top: 2px; }
+.semaforo .calidad { display: inline-block; font-size: 0.75rem; margin-top: 6px; padding: 1px 6px; border-radius: 6px; border: 1px solid var(--borde); color: var(--suave); }
+.semaforo .calidad.sin_fuente { border-color: #6b5320; color: #f0c86a; }
+.semaforo .calidad.verificado { border-color: #24543f; color: var(--verde); }
+.semaforo .fuente { font-size: 0.75rem; color: var(--suave); margin-top: 4px; word-break: break-all; }
+.e-vigilar { border-left-color: var(--rojo) !important; }
+.e-vigilar .estado { background: #4a1f1a; color: #ffb3a8; }
+.e-en_rango { border-left-color: var(--verde) !important; }
+.e-en_rango .estado { background: #143a2a; color: #9ff0c9; }
+.e-por_debajo { border-left-color: var(--azul) !important; }
+.e-por_debajo .estado { background: #172a47; color: #bcd6ff; }
+.e-sin_dato .estado, .e-sin_ventas .estado, .e-sin_rango .estado { background: #2a2f3a; color: var(--suave); }
+
+/* Compartir */
+.compartir-opciones { display: flex; gap: 8px; align-items: flex-start; font-size: 0.9rem; margin: 4px 0 12px; }
+.compartir-opciones input { width: 20px; height: 20px; margin: 1px 0 0; flex: none; }
+.texto-compartir { width: 100%; min-height: 150px; font: 0.9rem/1.4 ui-monospace, Menlo, Consolas, monospace; background: #0b0d11; color: var(--texto); border: 1px solid var(--borde); border-radius: 10px; padding: 10px; margin-top: 10px; }
+.estado-copia { font-size: 0.88rem; color: var(--verde); min-height: 1.2em; margin: 6px 0 0; }
+.imagen-compartir { display: block; width: 100%; height: auto; border-radius: 10px; margin-top: 12px; border: 1px solid var(--borde); }
+a.boton { display: inline-flex; align-items: center; text-decoration: none; }
+
+/* Captación */
+.captacion input[type="email"] { width: 100%; font: inherit; padding: 10px 12px; min-height: 46px; background: #0b0d11; color: var(--texto); border: 1px solid var(--borde); border-radius: 10px; margin: 6px 0 10px; }
+.captacion .consentimiento { display: flex; gap: 8px; align-items: flex-start; font-size: 0.88rem; margin-bottom: 12px; }
+.captacion .consentimiento input { width: 20px; height: 20px; margin: 1px 0 0; flex: none; }
+.captacion .mensaje { font-size: 0.9rem; min-height: 1.2em; }
+
+.pie { color: var(--suave); font-size: 0.8rem; margin-top: 22px; }
+.pie p { margin: 0 0 8px; }
+
+@media (min-width: 520px) {
+  .sectores { grid-template-columns: 1fr 1fr 1fr; }
+  .cifras { grid-template-columns: 1fr 1fr; }
+  .cifras .cifra.fuga { grid-column: 1 / -1; }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .cifra .valor { transition: color 0.2s; }
+}
+.bloque:empty { display: none; }
+
+/* Barra fija con el resumen mientras se rellenan los datos */
+.barra {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 10;
+  display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  padding: 10px 16px calc(10px + env(safe-area-inset-bottom));
+  background: rgba(14, 16, 20, 0.96); border-top: 1px solid var(--borde);
+  font-size: 0.9rem; font-variant-numeric: tabular-nums;
+}
+.barra-texto { min-width: 0; }
+.barra-texto b { color: var(--acento); }
+.barra-boton { padding: 8px 12px; min-height: 40px; flex: none; }
+main { padding-bottom: 96px; }
+.sin-js { max-width: 560px; margin: 16px auto; padding: 16px; background: #3a2c08; color: #ffd98a; border-radius: 10px; }
+
+</style>
+</head>
+<body>
+<noscript><p class="sin-js">Esta calculadora necesita JavaScript. Si la ves en una vista previa (por ejemplo, desde WhatsApp), ábrela en el navegador: Safari, Chrome o Firefox.</p></noscript>
+<main id="app">
+  <header class="cabecera">
+    <h1 data-t="app.titulo"></h1>
+    <p class="subtitulo" data-t="app.subtitulo"></p>
+    <p class="privacidad"><span aria-hidden="true">🔒</span> <span id="texto-privacidad"></span> <span data-t="app.memoria"></span></p>
+  </header>
+
+  <section class="bloque" aria-labelledby="t-sector">
+    <h2 id="t-sector" data-t="sector.titulo"></h2>
+    <div id="selector-idioma" class="idioma" hidden></div>
+    <fieldset class="sectores" id="sectores">
+      <legend class="visualmente-oculto" data-t="sector.titulo"></legend>
+    </fieldset>
+  </section>
+
+  <div id="zona-calculo" hidden>
+    <section class="bloque" aria-labelledby="t-entradas">
+      <h2 id="t-entradas" data-t="entradas.titulo"></h2>
+      <p class="nota" data-t="entradas.nota"></p>
+      <div class="botones">
+        <button type="button" id="btn-ejemplo" class="boton secundario" data-t="boton.ejemplo"></button>
+        <button type="button" id="btn-borrar" class="boton fantasma" data-t="boton.borrar"></button>
+      </div>
+      <p id="aviso-ejemplo" class="aviso-ejemplo" role="status" hidden data-t="aviso.ejemplo"></p>
+      <form id="entradas" class="entradas" autocomplete="off" novalidate onsubmit="return false"></form>
+    </section>
+
+    <section class="bloque" id="resultados" aria-labelledby="t-resultados">
+      <h2 id="t-resultados" data-t="resultados.titulo"></h2>
+      <p id="sin-ventas" class="nota" data-t="resultados.sin_ventas"></p>
+      <div id="cifras" class="cifras"></div>
+      <p id="anuncio" class="visualmente-oculto" aria-live="polite" aria-atomic="true"></p>
+      <p class="nota fuga-nota" data-t="fuga.explicacion"></p>
+      <div id="ticket" class="ticket" aria-labelledby="t-ticket"></div>
+      <h3 data-t="semaforo.titulo"></h3>
+      <ul id="semaforo" class="semaforo"></ul>
+    </section>
+
+    <section class="bloque" id="bloque-compartir" aria-labelledby="t-compartir"></section>
+  </div>
+
+  <div id="barra" class="barra" hidden>
+    <span id="barra-texto" class="barra-texto"></span>
+    <button type="button" id="barra-ver" class="boton primario barra-boton" data-t="barra.ver"></button>
+  </div>
+
+  <section class="bloque" id="bloque-captacion" aria-labelledby="t-captacion" hidden></section>
+
+  <footer class="pie">
+    <p data-t="legal.aviso"></p>
+    <p data-t="legal.fuentes"></p>
+  </footer>
+</main>
+<script type="application/json" id="datos-sectores">{"version":1,"nota":"Rangos en % sobre ventas sin IVA. Los ejemplos son ficticios.","sectores":[{"id":"restaurante","nombre":"Restaurante y comida rápida con delivery","corto":"Restaurante / delivery","etiquetaResultado":"Resultado del mes (EBITDA)","costePrincipal":{"nombre":"Prime cost","explicacion":"Materia prima + personal sobre ventas","partidas":["materia_prima","personal"],"rango":{"min":55,"max":65,"fuente":{"url":"https://restaurant.org/research-and-media/media/press-releases/new-resource-from-national-restaurant-association-provides-insights-into-operational-realities/","fecha":"2026-10-17","nota":"National Restaurant Association (EE. UU., 2025): prime cost mediano del 65 % en servicio rápido. Skello recomienda no superar el 60 %."},"calidad":"orientativo"}},"partidas":[{"id":"ventas_local","nombre":"Ventas en el local","ayuda":"Sala, barra y para llevar cobrado en tu caja, sin IVA.","tipo":"ingreso"},{"id":"ventas_delivery","nombre":"Ventas por plataformas","ayuda":"Lo vendido por apps de reparto antes de comisiones, sin IVA.","tipo":"ingreso"},{"id":"materia_prima","nombre":"Materia prima","ayuda":"Compras de comida, bebida y envases del mes.","tipo":"coste_directo","rango":{"min":25,"max":35,"fuente":{"url":"https://www.skello.es/blog/rentabilidad-restaurante","fecha":"2026-10-17","nota":"Skello: 25–32 % hostelería tradicional, 30–35 % comida rápida. ComboHR: 30–35 %."},"calidad":"orientativo"}},{"id":"personal","nombre":"Personal","ayuda":"Nóminas más Seguridad Social a cargo de la empresa.","tipo":"personal","rango":{"min":25,"max":35,"fuente":{"url":"https://www.skello.es/blog/rentabilidad-restaurante","fecha":"2026-10-17","nota":"Skello: 25–30 % comida rápida, 35–40 % tradicional. National Restaurant Association (EE. UU., 2024): mediana 31,7 % en servicio rápido."},"calidad":"orientativo"}},{"id":"comisiones","nombre":"Comisiones de plataformas","ayuda":"Lo que te cobran las apps de reparto. Se compara con sus ventas.","tipo":"comision","base":["ventas_delivery"],"rango":{"min":15,"max":35,"fuente":{"url":"https://merchants.ubereats.com/es/es/pricing/","fecha":"2026-10-17","nota":"Tarifa pública de Uber Eats España: 15 % autorreparto o recogida, 30 % con su reparto (33 % con Uber One). Glovo 15–35 % y Just Eat 25–35 % según qamarero.com (orientativo). El máximo de 35 % sale de esa fuente orientativa."},"calidad":"orientativo"}},{"id":"alquiler","nombre":"Alquiler","ayuda":"Renta del local y gastos de comunidad.","tipo":"fijo","rango":{"min":5,"max":10,"fuente":{"url":"https://combohr.com/es/blog/gastos-de-un-restaurante","fecha":"2026-10-17","nota":"ComboHR: alquiler inferior al 10 % de las ventas. El mínimo (5 %) es supuesto."},"calidad":"orientativo"}},{"id":"suministros","nombre":"Suministros","ayuda":"Luz, gas, agua, teléfono e internet.","tipo":"fijo","rango":{"min":3,"max":7,"fuente":{"url":"https://www.hosteltur.com/153567_hosteleria-de-espana-seis-propuestas-para-reducir-el-coste-de-la-energia.html","fecha":"2026-10-17","nota":"Hostelería de España: la energía es el 6–8 % de los COSTES, no de las ventas; el rango en ventas es una aproximación propia."},"calidad":"orientativo"}},{"id":"otros","nombre":"Otros gastos","ayuda":"Gestoría, seguros, mantenimiento, software, publicidad.","tipo":"otro"}],"ejemplo":{"ventas_local":"24.000","ventas_delivery":"16.000","materia_prima":"14.400","personal":"12.000","comisiones":"5.920","alquiler":"3.200","suministros":"1.900","otros":"1.500"}},{"id":"bar","nombre":"Bar y cafetería","corto":"Bar / cafetería","etiquetaResultado":"Resultado del mes (EBITDA)","costePrincipal":{"nombre":"Prime cost","explicacion":"Compras + personal sobre ventas","partidas":["compras","personal"],"rango":{"min":45,"max":60,"fuente":{"url":"https://www.skello.es/blog/rentabilidad-restaurante","fecha":"2026-10-17","nota":"Suma de los rangos de Skello para cafeterías y bares (comida 15–20 % + personal 30–35 % = 45–55 %), ampliado a 60 % por prudencia."},"calidad":"orientativo"}},"partidas":[{"id":"ventas","nombre":"Ventas","ayuda":"Todo lo cobrado en el mes, sin IVA.","tipo":"ingreso"},{"id":"compras","nombre":"Compras de bebida y comida","ayuda":"Bebidas, café, comida y consumibles del mes.","tipo":"coste_directo","rango":{"min":20,"max":30,"fuente":{"url":"https://modelosdeplandenegocios.com/blogs/news/rentabilidad-bar","fecha":"2026-10-17","nota":"Bebida alcohólica 20–30 %, sin alcohol 15–25 %; recomienda no superar el 30 % de las ventas. Skello da 15–20 % para cafeterías."},"calidad":"orientativo"}},{"id":"personal","nombre":"Personal","ayuda":"Nóminas más Seguridad Social a cargo de la empresa.","tipo":"personal","rango":{"min":25,"max":35,"fuente":{"url":"https://www.skello.es/blog/rentabilidad-restaurante","fecha":"2026-10-17","nota":"Skello: 30–35 % en cafeterías y bares. Otra fuente (modelosdeplandenegocios.com) da 15–25 %."},"calidad":"orientativo"}},{"id":"alquiler","nombre":"Alquiler","ayuda":"Renta del local y gastos de comunidad.","tipo":"fijo","rango":{"min":6,"max":12,"fuente":{"url":"","fecha":""},"calidad":"sin_fuente"}},{"id":"suministros","nombre":"Suministros","ayuda":"Luz, agua, gas, teléfono e internet.","tipo":"fijo","rango":{"min":3,"max":7,"fuente":{"url":"https://www.hosteltur.com/153567_hosteleria-de-espana-seis-propuestas-para-reducir-el-coste-de-la-energia.html","fecha":"2026-10-17","nota":"Hostelería de España: la energía es el 6–8 % de los COSTES; el rango en ventas es una aproximación propia."},"calidad":"orientativo"}},{"id":"otros","nombre":"Otros gastos","ayuda":"Gestoría, seguros, mantenimiento, licencias, música.","tipo":"otro"}],"ejemplo":{"ventas":"18.000","compras":"5.800","personal":"6.800","alquiler":"2.100","suministros":"1.150","otros":"900"}},{"id":"tienda","nombre":"Tienda física","corto":"Tienda","etiquetaResultado":"Resultado del mes (EBITDA)","costePrincipal":{"nombre":"Mercancía + personal","explicacion":"Coste de lo vendido + personal sobre ventas","partidas":["mercancia","personal"],"rango":{"min":70,"max":90,"fuente":{"url":"","fecha":""},"calidad":"sin_fuente"}},"partidas":[{"id":"ventas","nombre":"Ventas","ayuda":"Todo lo cobrado en tienda en el mes, sin IVA.","tipo":"ingreso"},{"id":"mercancia","nombre":"Coste de la mercancía vendida","ayuda":"Lo que te costó a ti lo que vendiste este mes.","tipo":"coste_directo","rango":{"min":50,"max":75,"fuente":{"url":"https://pages.stern.nyu.edu/~adamodar/New_Home_Page/datafile/margin.html","fecha":"2026-10-17","nota":"Calculado como 100 % menos el margen bruto (26–35 % en comercio minorista, enero 2026). Son empresas cotizadas de EE. UU.: úsalo con cautela. El mínimo se baja a 50 % porque muchas tiendas pequeñas trabajan con márgenes más altos (supuesto)."},"calidad":"orientativo"}},{"id":"personal","nombre":"Personal","ayuda":"Nóminas más Seguridad Social a cargo de la empresa.","tipo":"personal","rango":{"min":10,"max":20,"fuente":{"url":"https://sede.agenciatributaria.gob.es/AEAT/Contenidos_Comunes/La_Agencia_Tributaria/Estadisticas/Publicaciones/sites/rae/2019/jrubikf5db3d08bd8865d5f7a8404f19efb34429f119da4.html","fecha":"2026-10-17","nota":"Calculado de la AEAT (2019, autónomos de comercio, restaurantes y reparaciones): personal ≈ 13 % de los ingresos. No incluye el sueldo del titular."},"calidad":"orientativo"}},{"id":"alquiler","nombre":"Alquiler","ayuda":"Renta del local y gastos de comunidad.","tipo":"fijo","rango":{"min":5,"max":12,"fuente":{"url":"https://blog.towersystems.com.au/?p=24621","fecha":"2026-10-17","nota":"Referencia de ocupación del comercio minorista en Australia (2023): 9–11 %. Rango ampliado, supuesto."},"calidad":"orientativo"}},{"id":"suministros","nombre":"Suministros","ayuda":"Luz, agua, teléfono e internet.","tipo":"fijo","rango":{"min":1,"max":4,"fuente":{"url":"","fecha":""},"calidad":"sin_fuente"}},{"id":"otros","nombre":"Otros gastos","ayuda":"Gestoría, seguros, comisiones del datáfono, publicidad.","tipo":"otro"}],"ejemplo":{"ventas":"22.000","mercancia":"13.500","personal":"4.800","alquiler":"2.200","suministros":"450","otros":"700"}},{"id":"peluqueria","nombre":"Peluquería y estética","corto":"Peluquería / estética","etiquetaResultado":"Resultado del mes (EBITDA)","costePrincipal":{"nombre":"Personal + producto","explicacion":"Personal y productos sobre ventas","partidas":["personal","productos"],"rango":{"min":45,"max":62,"fuente":{"url":"https://biz.booksy.com/blog/cost-to-run-a-hair-salon","fecha":"2026-10-17","nota":"Suma de personal (45–50 %) y producto (8–12 %) según Booksy, con mínimo ampliado a 45 %."},"calidad":"orientativo"}},"partidas":[{"id":"ventas","nombre":"Ventas","ayuda":"Servicios y productos cobrados en el mes, sin IVA.","tipo":"ingreso"},{"id":"productos","nombre":"Productos","ayuda":"Tintes, cosmética, consumibles y producto para vender.","tipo":"coste_directo","rango":{"min":8,"max":15,"fuente":{"url":"https://biz.booksy.com/blog/cost-to-run-a-hair-salon","fecha":"2026-10-17","nota":"Booksy (EE. UU.): producto técnico 8–12 % de los servicios; sin control sube a 15–22 %."},"calidad":"orientativo"}},{"id":"personal","nombre":"Personal","ayuda":"Nóminas, comisiones del equipo y Seguridad Social.","tipo":"personal","rango":{"min":35,"max":50,"fuente":{"url":"https://biz.booksy.com/blog/cost-to-run-a-hair-salon","fecha":"2026-10-17","nota":"Booksy: 45–50 % con comisiones y cargas sociales. Otras fuentes del sector: 35–45 %."},"calidad":"orientativo"}},{"id":"alquiler","nombre":"Alquiler","ayuda":"Renta del local y gastos de comunidad.","tipo":"fijo","rango":{"min":10,"max":15,"fuente":{"url":"https://biz.booksy.com/blog/cost-to-run-a-hair-salon","fecha":"2026-10-17","nota":"Booksy: ocupación total 10–15 %; por encima del 20 % es señal de riesgo."},"calidad":"orientativo"}},{"id":"suministros","nombre":"Suministros","ayuda":"Luz, agua, gas, teléfono e internet.","tipo":"fijo","rango":{"min":2,"max":5,"fuente":{"url":"https://biz.booksy.com/blog/cost-to-run-a-hair-salon","fecha":"2026-10-17","nota":"Booksy (EE. UU.) da 2–3 %; se amplía el máximo a 5 % porque la energía suele ser más cara en España (supuesto)."},"calidad":"orientativo"}},{"id":"otros","nombre":"Otros gastos","ayuda":"Gestoría, seguros, software de citas, lavandería.","tipo":"otro"}],"ejemplo":{"ventas":"9.500","productos":"1.100","personal":"5.200","alquiler":"1.100","suministros":"420","otros":"450"}},{"id":"autonomo","nombre":"Autónomo de servicios y oficios","corto":"Autónomo / oficios","etiquetaResultado":"Beneficio del mes (antes de impuestos)","costePrincipal":{"nombre":"Gastos totales","explicacion":"Todo lo que gastas sobre lo que facturas","partidas":["materiales","cuota","vehiculo","herramientas","gestoria","local"]},"partidas":[{"id":"facturacion","nombre":"Facturación","ayuda":"Lo facturado en el mes, sin IVA (fontanería, reformas, diseño, consultoría…).","tipo":"ingreso"},{"id":"materiales","nombre":"Materiales y subcontratas","ayuda":"Material de obra o trabajo y lo que pagas a otros profesionales.","tipo":"coste_directo"},{"id":"cuota","nombre":"Cuota de autónomos y seguros sociales","ayuda":"Tu cuota mensual a la Seguridad Social (o equivalente en tu país).","tipo":"personal"},{"id":"vehiculo","nombre":"Vehículo y desplazamientos","ayuda":"Combustible, renting, parking, peajes, transporte.","tipo":"otro","rango":{"min":3,"max":10,"fuente":{"url":"","fecha":""},"calidad":"sin_fuente"}},{"id":"herramientas","nombre":"Herramientas, software y formación","ayuda":"Herramientas, programas, móvil, cursos.","tipo":"otro","rango":{"min":1,"max":5,"fuente":{"url":"","fecha":""},"calidad":"sin_fuente"}},{"id":"gestoria","nombre":"Gestoría, seguros y banco","ayuda":"Asesoría, seguro de responsabilidad civil, comisiones bancarias.","tipo":"fijo","rango":{"min":2,"max":6,"fuente":{"url":"","fecha":""},"calidad":"sin_fuente"}},{"id":"local","nombre":"Local o espacio de trabajo","ayuda":"Alquiler de local, taller o coworking. Déjalo vacío si trabajas desde casa.","tipo":"fijo","rango":{"min":0,"max":10,"fuente":{"url":"","fecha":""},"calidad":"sin_fuente"}}],"ejemplo":{"facturacion":"4.200","materiales":"900","cuota":"320","vehiculo":"480","herramientas":"150","gestoria":"210","local":""}},{"id":"taller","nombre":"Taller y producción pequeña","corto":"Taller / producción","etiquetaResultado":"Resultado del mes (EBITDA)","costePrincipal":{"nombre":"Materiales + personal","explicacion":"Materias primas y personal sobre ventas","partidas":["materias","personal"],"rango":{"min":55,"max":75,"fuente":{"url":"","fecha":""},"calidad":"sin_fuente"}},"partidas":[{"id":"ventas","nombre":"Ventas","ayuda":"Lo facturado en el mes, sin IVA.","tipo":"ingreso"},{"id":"materias","nombre":"Materias primas","ayuda":"Material, componentes y embalaje usados en el mes.","tipo":"coste_directo","rango":{"min":30,"max":50,"fuente":{"url":"","fecha":""},"calidad":"sin_fuente"}},{"id":"personal","nombre":"Personal","ayuda":"Nóminas más Seguridad Social a cargo de la empresa.","tipo":"personal","rango":{"min":15,"max":30,"fuente":{"url":"https://sede.agenciatributaria.gob.es/AEAT/Contenidos_Comunes/La_Agencia_Tributaria/Estadisticas/Publicaciones/sites/rae/2019/jrubikf163625aa7cc75a8deee7512aa32f4dd2c78c83c3.html","fecha":"2026-10-17","nota":"Calculado de la AEAT (2019, autónomos de otras industrias manufactureras): personal ≈ 23 % de los ingresos. No incluye el sueldo del titular."},"calidad":"orientativo"}},{"id":"energia","nombre":"Energía y suministros","ayuda":"Luz, gas, agua, teléfono. En talleres suele pesar más.","tipo":"fijo","rango":{"min":3,"max":8,"fuente":{"url":"","fecha":""},"calidad":"sin_fuente"}},{"id":"alquiler","nombre":"Alquiler de nave o local","ayuda":"Renta del espacio de trabajo.","tipo":"fijo","rango":{"min":4,"max":10,"fuente":{"url":"","fecha":""},"calidad":"sin_fuente"}},{"id":"otros","nombre":"Mantenimiento y otros","ayuda":"Reparaciones, seguros, gestoría, transporte.","tipo":"otro"}],"ejemplo":{"ventas":"30.000","materias":"13.200","personal":"9.600","energia":"2.700","alquiler":"1.800","otros":"1.100"}},{"id":"otro","nombre":"Otro tipo de negocio","corto":"Otro","etiquetaResultado":"Resultado del mes","costePrincipal":{"nombre":"Coste directo + personal","explicacion":"Coste de lo vendido y personal sobre ventas","partidas":["coste_ventas","personal"]},"partidas":[{"id":"ventas","nombre":"Ventas","ayuda":"Todo lo cobrado o facturado en el mes, sin IVA.","tipo":"ingreso"},{"id":"coste_ventas","nombre":"Coste de lo que vendes","ayuda":"Compras, material o mercancía ligados a tus ventas.","tipo":"coste_directo"},{"id":"personal","nombre":"Personal","ayuda":"Nóminas y Seguridad Social (o tu cuota de autónomo).","tipo":"personal"},{"id":"alquiler","nombre":"Alquiler","ayuda":"Renta del local u oficina.","tipo":"fijo"},{"id":"suministros","nombre":"Suministros","ayuda":"Luz, agua, teléfono e internet.","tipo":"fijo"},{"id":"otros","nombre":"Otros gastos","ayuda":"Gestoría, seguros, publicidad, software.","tipo":"otro"}],"ejemplo":{"ventas":"12.000","coste_ventas":"4.800","personal":"3.600","alquiler":"1.200","suministros":"400","otros":"700"}}]}</script>
+<script type="application/json" id="textos-es">{"_idioma":"es","_completo":true,"app.titulo":"¿Dónde se te va el dinero?","app.subtitulo":"Mete los números de un mes y mira en 30 segundos qué partida se come tu margen.","app.privacidad":"Tus datos no salen de tu navegador. No se envía nada a ningún sitio.","app.privacidad_captacion":"Tus cifras no salen de tu navegador. Solo si pides el aviso se envían tu correo y tu sector.","app.memoria":"No guardamos nada: si recargas la página, se borra.","sector.titulo":"1 · ¿Qué tipo de negocio tienes?","entradas.titulo":"2 · Tu mes, sin IVA","entradas.nota":"Pon importes de un mes normal, en euros y sin IVA. Lo que no sepas, déjalo vacío.","entradas.de_ventas":"de ventas","entradas.de_base":"de sus ventas","entradas.habitual":"habitual","boton.ejemplo":"Cargar ejemplo","boton.borrar":"Borrar todo","aviso.ejemplo":"DATOS DE EJEMPLO · ficticios, solo para ver cómo funciona. Cámbialos por los tuyos.","resultados.titulo":"3 · Tu resultado","resultados.sin_ventas":"Escribe tus ventas para ver porcentajes y la fuga.","cifra.resultado":"Resultado del mes","cifra.margen":"de margen","cifra.fuga":"Fuga estimada","cifra.fuga_mes":"al mes","cifra.fuga_anio":"al año","cifra.sobre_ventas":"sobre ventas","fuga.explicacion":"Estimación prudente: solo suma lo que cada partida supera el máximo habitual de su sector. No cuenta lo que podrías ahorrar dentro del rango.","ticket.titulo":"Cuenta del mes","ticket.ventas":"Ventas","ticket.costes":"Total gastos","semaforo.titulo":"Partida a partida","estado.vigilar":"VIGILAR","estado.en_rango":"EN RANGO","estado.por_debajo":"POR DEBAJO","estado.sin_dato":"SIN DATO","estado.sin_ventas":"SIN VENTAS","estado.sin_rango":"SIN REFERENCIA","estado.vigilar_detalle":"{euros} al mes por encima del máximo habitual","estado.en_rango_detalle":"Dentro de lo habitual","estado.por_debajo_detalle":"Por debajo de lo habitual: comprueba que esté completa","estado.sin_dato_detalle":"Sin importe","estado.sin_ventas_detalle":"Faltan las ventas para comparar","estado.sin_rango_detalle":"No hay rango de referencia para esta partida","calidad.verificado":"fuente verificada","calidad.orientativo":"orientativo","calidad.sin_fuente":"sin fuente: úsalo solo como guía","fuente.consultada":"Fuente","fuente.fecha":"consultada el","fuente.ninguna":"Rango de trabajo sin fuente publicada. Úsalo solo como guía.","error.no_numero":"No es un número válido. Usa solo cifras, por ejemplo 12.500 o 12500,50.","error.negativo":"No puede ser negativo. Se cuenta como 0.","compartir.titulo":"4 · Compártelo","compartir.copiar":"Copiar mi resultado","compartir.copiado":"Copiado. Pégalo en WhatsApp o donde quieras.","compartir.no_copiado":"No se pudo copiar solo. Selecciona el texto de abajo y cópialo.","compartir.imagen":"Crear imagen","compartir.descargar":"Descargar imagen","compartir.pulsacion":"En el móvil, mantén pulsada la imagen para guardarla.","compartir.mostrar_importes":"Mostrar importes en euros (por defecto solo porcentajes y la fuga)","compartir.frase":"Calculado en privado, sin enviar mis datos.","compartir.mi_negocio":"Mi negocio","compartir.este_mes":"este mes","compartir.alt_imagen":"Imagen con tu resultado para compartir","compartir.sin_datos":"Primero escribe tus ventas.","captacion.titulo":"¿Quieres más?","captacion.oferta_defecto":"Avísame cuando haya nuevas herramientas gratuitas para mi negocio.","captacion.proximamente":"Próximamente","captacion.correo":"Tu correo","captacion.consentimiento":"Acepto que se guarde mi correo y mi sector solo para avisarme. Nunca se envían mis cifras. Puedo darme de baja cuando quiera.","captacion.enviar":"Avisadme","captacion.enviando":"Enviando…","captacion.ok":"Hecho. Te avisaremos.","captacion.error":"No se pudo enviar. Inténtalo más tarde.","captacion.correo_invalido":"Revisa el correo: parece incompleto.","captacion.falta_consentimiento":"Marca la casilla para poder avisarte.","legal.aviso":"Herramienta orientativa e informativa. No es asesoría y no sustituye a un asesor fiscal, contable o financiero. Los rangos son aproximados y cambian según zona, tamaño y modelo de negocio.","legal.fuentes":"Cada rango indica su fuente y calidad. Los marcados «sin fuente» son supuestos de trabajo.","barra.fuga":"Fuga","barra.resultado":"Resultado","barra.ver":"Ver resultado","idioma.etiqueta":"Idioma","anuncio.resumen":"Resultado {resultado}, margen {margen}. Fuga estimada {fuga} al mes. Partidas a vigilar: {vigilar}."}</script>
+<script type="application/json" id="textos-en">{"_idioma":"en","_completo":false,"_nota":"UI translated. Sector names and help texts in sectores.json are still Spanish only, so the language switch stays hidden.","app.titulo":"Where is your money going?","app.subtitulo":"Enter one month of numbers and see in 30 seconds which cost is eating your margin.","app.privacidad":"Your data never leaves your browser. Nothing is sent anywhere.","app.privacidad_captacion":"Your figures never leave your browser. Only if you ask to be notified are your email and sector sent.","app.memoria":"We store nothing: reload the page and it is gone.","sector.titulo":"1 · What kind of business do you run?","entradas.titulo":"2 · Your month, before VAT","entradas.nota":"Use figures from a normal month, in euros, before VAT. Leave blank what you don't know.","entradas.de_ventas":"of sales","entradas.de_base":"of its sales","entradas.habitual":"typical","boton.ejemplo":"Load example","boton.borrar":"Clear all","aviso.ejemplo":"EXAMPLE DATA · fictitious, just to show how it works. Replace it with yours.","resultados.titulo":"3 · Your result","resultados.sin_ventas":"Enter your sales to see percentages and the leak.","cifra.resultado":"Monthly result","cifra.margen":"margin","cifra.fuga":"Estimated leak","cifra.fuga_mes":"per month","cifra.fuga_anio":"per year","cifra.sobre_ventas":"over sales","fuga.explicacion":"Conservative estimate: it only adds what each cost exceeds the typical maximum for your sector. It ignores savings within the range.","ticket.titulo":"Monthly statement","ticket.ventas":"Sales","ticket.costes":"Total costs","semaforo.titulo":"Cost by cost","estado.vigilar":"WATCH","estado.en_rango":"IN RANGE","estado.por_debajo":"BELOW","estado.sin_dato":"NO DATA","estado.sin_ventas":"NO SALES","estado.sin_rango":"NO BENCHMARK","estado.vigilar_detalle":"{euros} per month above the typical maximum","estado.en_rango_detalle":"Within the typical range","estado.por_debajo_detalle":"Below typical: check it is complete","estado.sin_dato_detalle":"No amount","estado.sin_ventas_detalle":"Sales are needed to compare","estado.sin_rango_detalle":"No benchmark range for this cost","calidad.verificado":"verified source","calidad.orientativo":"indicative","calidad.sin_fuente":"no source: use only as a guide","fuente.consultada":"Source","fuente.fecha":"accessed on","fuente.ninguna":"Working range without a published source. Use only as a guide.","error.no_numero":"Not a valid number. Use digits only, e.g. 12.500 or 12500,50.","error.negativo":"Cannot be negative. Counted as 0.","compartir.titulo":"4 · Share it","compartir.copiar":"Copy my result","compartir.copiado":"Copied. Paste it in WhatsApp or anywhere.","compartir.no_copiado":"Could not copy automatically. Select the text below and copy it.","compartir.imagen":"Create image","compartir.descargar":"Download image","compartir.pulsacion":"On a phone, long-press the image to save it.","compartir.mostrar_importes":"Show amounts in euros (by default only percentages and the leak)","compartir.frase":"Calculated privately, without sending my data.","compartir.mi_negocio":"My business","compartir.este_mes":"this month","compartir.alt_imagen":"Image with your result to share","compartir.sin_datos":"Enter your sales first.","captacion.titulo":"Want more?","captacion.oferta_defecto":"Let me know when there are new free tools for my business.","captacion.proximamente":"Coming soon","captacion.correo":"Your email","captacion.consentimiento":"I agree my email and sector are stored only to notify me. My figures are never sent. I can unsubscribe any time.","captacion.enviar":"Notify me","captacion.enviando":"Sending…","captacion.ok":"Done. We will let you know.","captacion.error":"Could not send. Try again later.","captacion.correo_invalido":"Check the email: it looks incomplete.","captacion.falta_consentimiento":"Tick the box so we can notify you.","legal.aviso":"Indicative, informational tool. It is not advice and does not replace a tax, accounting or financial adviser. Ranges are approximate and vary by area, size and business model.","legal.fuentes":"Each range shows its source and quality. Those marked “no source” are working assumptions.","barra.fuga":"Leak","barra.resultado":"Result","barra.ver":"See result","idioma.etiqueta":"Language","anuncio.resumen":"Result {resultado}, margin {margen}. Estimated leak {fuga} per month. Costs to watch: {vigilar}."}</script>
+<script>
+/* ==== config.js ==== */
+/* Configuración. Cambia estos valores y vuelve a generar con `make build`.
+   Todo vacío por defecto: sin marca, sin enlace y sin captación (cero red). */
+var CONFIG = {
+  // Nombre o marca que aparece en la imagen para compartir. Vacío = sin marca.
+  MARCA: '',
+  // Enlace público donde vas a alojar la calculadora (se añade al texto copiado).
+  ENLACE_PUBLICO: '',
+  // URL https que recibirá { correo, sector } por POST JSON. Vacío = captación
+  // desactivada: el bloque muestra «Próximamente» y el HTML no lleva código de red.
+  ENDPOINT_AVISO: '',
+  // Texto de la oferta en el bloque final. Vacío = texto por defecto.
+  TEXTO_OFERTA: ''
+};
+if (typeof module === 'object' && module.exports) module.exports = CONFIG;
+
+/* ==== formato.js ==== */
+/* Formato de números en español (es-ES). Puro: lo usan la página y los tests. */
+(function (raiz, fabrica) {
+  if (typeof module === 'object' && module.exports) module.exports = fabrica();
+  else raiz.Formato = fabrica();
+})(typeof self !== 'undefined' ? self : this, function () {
+  'use strict';
+  var NBSP = ' ';
+
+  function crear(opciones) {
+    // useGrouping 'always' para que 2500 salga como 2.500 (es-ES por defecto no
+    // agrupa números de cuatro cifras). Si el navegador no lo admite, true.
+    try {
+      opciones.useGrouping = 'always';
+      var f = new Intl.NumberFormat('es-ES', opciones);
+      if (f.format(2500) === '2.500') return f;
+    } catch (e) { /* navegador antiguo */ }
+    opciones.useGrouping = true;
+    try { return new Intl.NumberFormat('es-ES', opciones); } catch (e2) { return null; }
+  }
+
+  var fEntero = crear({ maximumFractionDigits: 0 });
+  var fUnDecimal = crear({ minimumFractionDigits: 0, maximumFractionDigits: 1 });
+
+  function respaldo(v, decimales) {
+    var s = Math.abs(v).toFixed(decimales).split('.');
+    var ent = s[0].replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+    return (v < 0 ? '-' : '') + ent + (s[1] && Number(s[1]) !== 0 ? ',' + s[1] : '');
+  }
+
+  function numero(v, decimales) {
+    if (v === null || v === undefined || !isFinite(v)) return '—';
+    var f = decimales ? fUnDecimal : fEntero;
+    var redondeado = decimales ? Math.round(v * 10) / 10 : Math.round(v);
+    if (redondeado === 0) redondeado = 0; // evita «-0»
+    var txt = f ? f.format(redondeado) : respaldo(redondeado, decimales ? 1 : 0);
+    return txt.replace(/−/g, '-');
+  }
+
+  function euros(v) {
+    if (v === null || v === undefined || !isFinite(v)) return '—';
+    return numero(v, 0) + NBSP + '€';
+  }
+
+  // proporcion en tanto por uno (0.315 → «31,5 %»)
+  function porcentaje(p) {
+    if (p === null || p === undefined || !isFinite(p)) return '—';
+    if (p > 0 && p * 100 < 0.05) return '<' + numero(0.1, 1) + NBSP + '%'; // no mostrar «0 %» si hay importe
+    return numero(p * 100, 1) + NBSP + '%';
+  }
+
+  // rango en % ({min: 28, max: 35} → «28–35 %»)
+  function rango(r) {
+    if (!r) return '—';
+    return numero(r.min, 1) + '–' + numero(r.max, 1) + NBSP + '%';
+  }
+
+  // Para devolver al campo lo escrito con formato español, hasta 2 decimales
+  // (24000 → «24.000», 1234.5 → «1.234,5»). Sin símbolo para poder seguir editando.
+  function entrada(v) {
+    if (v === null || v === undefined || !isFinite(v)) return '';
+    var r = Math.round(v * 100) / 100;
+    var ent = Math.trunc(r);
+    var dec = Math.round(Math.abs(r - ent) * 100);
+    var txt = numero(ent, 0);
+    if (dec) txt += ',' + String(dec).padStart(2, '0').replace(/0$/, '');
+    return txt;
+  }
+
+  return { entrada: entrada, numero: numero, euros: euros, porcentaje: porcentaje, rango: rango, NBSP: NBSP };
+});
+
+/* ==== calculadora.js ==== */
+/* Lógica pura de la calculadora. No conoce ningún sector: todo llega en el
+   objeto `sector` leído de sectores.json. Funciona en el navegador (global
+   `Calculadora`) y en Node (module.exports) para los tests. Sin red, sin DOM. */
+(function (raiz, fabrica) {
+  if (typeof module === 'object' && module.exports) module.exports = fabrica();
+  else raiz.Calculadora = fabrica();
+})(typeof self !== 'undefined' ? self : this, function () {
+  'use strict';
+
+  var TIPOS = ['ingreso', 'coste_directo', 'personal', 'comision', 'fijo', 'otro'];
+  var CALIDADES = ['verificado', 'orientativo', 'sin_fuente'];
+
+  /* Convierte lo que escribe una persona en un número.
+     Acepta formato español ("1.234,56"), coma decimal ("1234,5"), punto
+     decimal ("1234.5"), espacios y el símbolo €. Un único punto seguido de
+     exactamente tres cifras ("2.500") se lee como separador de miles, que es
+     lo habitual en España.
+     Devuelve { valor, vacio, error } — `error` es una clave de texto o null. */
+  function parsearNumero(entrada) {
+    if (entrada === null || entrada === undefined) return { valor: 0, vacio: true, error: null };
+    if (typeof entrada === 'number') {
+      if (!isFinite(entrada)) return { valor: 0, vacio: false, error: 'error.no_numero' };
+      return { valor: entrada, vacio: false, error: null };
+    }
+    var t = String(entrada).replace(/[\s  €]/g, '');
+    if (t === '') return { valor: 0, vacio: true, error: null };
+    var negativo = false;
+    if (t.charAt(0) === '-' || t.charAt(0) === '−') { negativo = true; t = t.slice(1); }
+    if (!/^[0-9.,]+$/.test(t) || !/[0-9]/.test(t)) return { valor: 0, vacio: false, error: 'error.no_numero' };
+
+    var comas = (t.match(/,/g) || []).length;
+    var puntos = (t.match(/\./g) || []).length;
+    var normal;
+    if (comas > 1) {
+      return { valor: 0, vacio: false, error: 'error.no_numero' };
+    } else if (comas === 1) {
+      // La coma es el decimal; los puntos, si los hay, son miles.
+      var partes = t.split(',');
+      if (puntos > 0 && !/^\d{1,3}(\.\d{3})+$/.test(partes[0])) return { valor: 0, vacio: false, error: 'error.no_numero' };
+      normal = partes[0].replace(/\./g, '') + '.' + partes[1];
+    } else if (puntos > 1) {
+      if (!/^\d{1,3}(\.\d{3})+$/.test(t)) return { valor: 0, vacio: false, error: 'error.no_numero' };
+      normal = t.replace(/\./g, '');
+    } else if (puntos === 1 && /^\d{1,3}\.\d{3}$/.test(t)) {
+      normal = t.replace('.', '');
+    } else {
+      normal = t;
+    }
+    if (normal.charAt(0) === '.') normal = '0' + normal;
+    if (normal.charAt(normal.length - 1) === '.') normal = normal.slice(0, -1);
+    var v = Number(normal);
+    if (!isFinite(v)) return { valor: 0, vacio: false, error: 'error.no_numero' };
+    return { valor: negativo ? -v : v, vacio: false, error: null };
+  }
+
+  function sumar(lista) {
+    var s = 0;
+    for (var i = 0; i < lista.length; i++) s += lista[i];
+    return s;
+  }
+
+  /* Estado de una proporción (0..1) frente a un rango en % {min, max}. */
+  function estadoFrenteARango(proporcion, rango, importe) {
+    if (!rango || typeof rango.max !== 'number') return 'sin_rango';
+    if (proporcion === null) return 'sin_ventas';
+    if (importe === 0) return 'sin_dato';
+    if (proporcion > rango.max / 100) return 'vigilar';
+    if (typeof rango.min === 'number' && proporcion < rango.min / 100) return 'por_debajo';
+    return 'en_rango';
+  }
+
+  /* Calcula la cuenta del mes.
+     sector: objeto de sectores.json
+     valores: { idPartida: texto o número }
+     Fuga de una partida = (porcentaje real − máximo habitual) × base, solo si
+     supera el máximo. La base son las ventas totales o, si la partida declara
+     `base`, la suma de esas partidas de ingreso (p. ej. comisiones sobre las
+     ventas por plataformas). */
+  function calcular(sector, valores) {
+    valores = valores || {};
+    var avisos = [];
+    var importes = {};
+
+    sector.partidas.forEach(function (p) {
+      var r = parsearNumero(valores[p.id]);
+      var v = r.valor;
+      if (r.error) {
+        avisos.push({ id: p.id, clave: r.error });
+        v = 0;
+      } else if (v < 0) {
+        avisos.push({ id: p.id, clave: 'error.negativo' });
+        v = 0;
+      }
+      importes[p.id] = v;
+    });
+
+    var ingresos = sector.partidas.filter(function (p) { return p.tipo === 'ingreso'; });
+    var costes = sector.partidas.filter(function (p) { return p.tipo !== 'ingreso'; });
+    var ventas = sumar(ingresos.map(function (p) { return importes[p.id]; }));
+
+    var lineas = costes.map(function (p) {
+      var importe = importes[p.id];
+      var base = ventas;
+      if (Array.isArray(p.base) && p.base.length) {
+        base = sumar(p.base.map(function (id) { return importes[id] || 0; }));
+      }
+      var proporcion = base > 0 ? importe / base : null;
+      var proporcionVentas = ventas > 0 ? importe / ventas : null;
+      var estado = estadoFrenteARango(proporcion, p.rango, importe);
+      var fuga = 0;
+      if (estado === 'vigilar') fuga = (proporcion - p.rango.max / 100) * base;
+      return {
+        id: p.id,
+        tipo: p.tipo,
+        importe: importe,
+        base: base,
+        proporcion: proporcion,
+        proporcionVentas: proporcionVentas,
+        estado: estado,
+        fuga: fuga,
+        rango: p.rango || null
+      };
+    });
+
+    var totalCostes = sumar(lineas.map(function (l) { return l.importe; }));
+    var resultado = ventas - totalCostes;
+    var fugaMes = sumar(lineas.map(function (l) { return l.fuga; }));
+
+    var principal = null;
+    if (sector.costePrincipal) {
+      var ids = sector.costePrincipal.partidas || [];
+      var imp = sumar(ids.map(function (id) { return importes[id] || 0; }));
+      var prop = ventas > 0 ? imp / ventas : null;
+      principal = {
+        importe: imp,
+        proporcion: prop,
+        rango: sector.costePrincipal.rango || null,
+        estado: estadoFrenteARango(prop, sector.costePrincipal.rango, imp)
+      };
+    }
+
+    return {
+      ventas: ventas,
+      importes: importes,
+      lineas: lineas,
+      totalCostes: totalCostes,
+      resultado: resultado,
+      margen: ventas > 0 ? resultado / ventas : null,
+      costePrincipal: principal,
+      fugaMes: fugaMes,
+      fugaAnio: fugaMes * 12,
+      avisos: avisos
+    };
+  }
+
+  /* Comprueba que un sector cumple el formato esperado. Devuelve lista de
+     errores (vacía si es válido). La usan los tests y el README. */
+  function validarSector(s) {
+    var errores = [];
+    if (!s || typeof s !== 'object') return ['sector vacío'];
+    if (!s.id) errores.push('falta id');
+    if (!s.nombre) errores.push(s.id + ': falta nombre');
+    if (!Array.isArray(s.partidas)) return errores.concat(s.id + ': faltan partidas');
+    if (s.partidas.length < 5 || s.partidas.length > 8) errores.push(s.id + ': debe tener entre 5 y 8 partidas');
+    var ids = {};
+    var hayIngreso = false;
+    s.partidas.forEach(function (p) {
+      if (!p.id || !p.nombre || !p.ayuda) errores.push(s.id + ': partida sin id, nombre o ayuda');
+      if (ids[p.id]) errores.push(s.id + ': id repetido ' + p.id);
+      ids[p.id] = true;
+      if (TIPOS.indexOf(p.tipo) < 0) errores.push(s.id + '.' + p.id + ': tipo no válido ' + p.tipo);
+      if (p.tipo === 'ingreso') hayIngreso = true;
+      if (p.rango) errores = errores.concat(validarRango(s.id + '.' + p.id, p.rango));
+    });
+    s.partidas.forEach(function (p) {
+      (p.base || []).forEach(function (id) {
+        if (!ids[id]) errores.push(s.id + '.' + p.id + ': base apunta a partida inexistente ' + id);
+      });
+    });
+    if (!hayIngreso) errores.push(s.id + ': necesita al menos una partida de ingreso');
+    if (s.costePrincipal) {
+      (s.costePrincipal.partidas || []).forEach(function (id) {
+        if (!ids[id]) errores.push(s.id + ': costePrincipal apunta a partida inexistente ' + id);
+      });
+      if (s.costePrincipal.rango) errores = errores.concat(validarRango(s.id + '.costePrincipal', s.costePrincipal.rango));
+    }
+    return errores;
+  }
+
+  function validarRango(donde, r) {
+    var e = [];
+    if (typeof r.min !== 'number' || typeof r.max !== 'number') e.push(donde + ': rango sin min/max numéricos');
+    else if (r.min < 0 || r.max > 100 || r.min > r.max) e.push(donde + ': rango incoherente');
+    if (CALIDADES.indexOf(r.calidad) < 0) e.push(donde + ': calidad no válida');
+    if (!r.fuente || typeof r.fuente !== 'object') e.push(donde + ': falta objeto fuente');
+    else if (r.calidad !== 'sin_fuente' && (!/^https:\/\//.test(r.fuente.url || '') || !r.fuente.fecha)) {
+      e.push(donde + ': con calidad ' + r.calidad + ' necesita url https y fecha');
+    }
+    return e;
+  }
+
+  return {
+    TIPOS: TIPOS,
+    CALIDADES: CALIDADES,
+    parsearNumero: parsearNumero,
+    calcular: calcular,
+    validarSector: validarSector
+  };
+});
+
+/* ==== tarjeta.js ==== */
+/* Tarjeta para compartir: texto corto para WhatsApp e imagen 1080×1350 hecha
+   con canvas, sin red. Por defecto solo porcentajes y la fuga; los importes en
+   euros del resultado y del coste principal solo salen si se marca la casilla. */
+(function (raiz, fabrica) {
+  var m = fabrica();
+  if (typeof module === 'object' && module.exports) module.exports = m;
+  else raiz.Compartir = m;
+})(typeof self !== 'undefined' ? self : this, function () {
+  'use strict';
+
+  /* Las tres cifras, ya formateadas, comunes al texto y a la imagen. */
+  function cifras(resumen, op) {
+    var s = resumen.sector, r = resumen.resultado, t = op.t, F = op.F;
+    var margen = r.margen !== null ? F.porcentaje(r.margen) + ' ' + t('cifra.margen') : '—';
+    var lista = [{
+      etiqueta: s.etiquetaResultado || t('cifra.resultado'),
+      valor: op.mostrarImportes ? F.euros(r.resultado) : margen,
+      extra: op.mostrarImportes ? margen : ''
+    }];
+    if (r.costePrincipal) {
+      lista.push({
+        etiqueta: s.costePrincipal.nombre,
+        valor: F.porcentaje(r.costePrincipal.proporcion) + ' ' + t('cifra.sobre_ventas'),
+        extra: op.mostrarImportes ? F.euros(r.costePrincipal.importe) : ''
+      });
+    }
+    lista.push({
+      etiqueta: t('cifra.fuga'),
+      valor: F.euros(r.fugaMes) + ' ' + t('cifra.fuga_mes'),
+      extra: F.euros(r.fugaAnio) + ' ' + t('cifra.fuga_anio')
+    });
+    return lista;
+  }
+
+  function generarTexto(resumen, op) {
+    var t = op.t;
+    var lineas = [t('compartir.mi_negocio') + ' (' + resumen.sector.nombre + '), ' + t('compartir.este_mes') + ':'];
+    cifras(resumen, op).forEach(function (c) {
+      lineas.push('• ' + c.etiqueta + ': ' + c.valor + (c.extra ? ' (' + c.extra + ')' : ''));
+    });
+    if (resumen.ejemplo) lineas.push('(' + t('aviso.ejemplo').split('·')[0].trim().toLowerCase() + ')');
+    lineas.push(t('compartir.frase'));
+    if (op.enlace) lineas.push(op.enlace);
+    return lineas.join('\n').replace(/ /g, ' ');
+  }
+
+  /* ---------- Imagen ---------- */
+  var FUENTE = 'system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif';
+
+  function partirLineas(ctx, texto, ancho) {
+    var palabras = texto.split(' '), lineas = [], actual = '';
+    palabras.forEach(function (p) {
+      var prueba = actual ? actual + ' ' + p : p;
+      if (ctx.measureText(prueba).width > ancho && actual) { lineas.push(actual); actual = p; }
+      else actual = prueba;
+    });
+    if (actual) lineas.push(actual);
+    return lineas;
+  }
+
+  function ajustarTamano(ctx, texto, peso, maximo, ancho) {
+    var tam = maximo;
+    do { ctx.font = peso + ' ' + tam + 'px ' + FUENTE; tam -= 4; } while (ctx.measureText(texto).width > ancho && tam > 30);
+    return ctx.font;
+  }
+
+  function dibujar(canvas, resumen, op) {
+    var W = 1080, H = 1350, M = 80;
+    canvas.width = W; canvas.height = H;
+    var ctx = canvas.getContext('2d');
+    var t = op.t;
+    ctx.fillStyle = '#0e1014'; ctx.fillRect(0, 0, W, H);
+    ctx.fillStyle = '#f5b942'; ctx.fillRect(0, 0, W, 14);
+    ctx.textBaseline = 'alphabetic';
+
+    var y = 130;
+    ctx.fillStyle = '#a3abba';
+    ctx.font = '600 34px ' + FUENTE;
+    ctx.fillText((resumen.sector.corto || resumen.sector.nombre).toUpperCase() + ' · ' + t('compartir.este_mes').toUpperCase(), M, y);
+    y += 80;
+    ctx.fillStyle = '#eceef3';
+    ctx.font = '800 64px ' + FUENTE;
+    partirLineas(ctx, t('app.titulo'), W - 2 * M).forEach(function (l) { ctx.fillText(l, M, y); y += 74; });
+    y += 30;
+
+    var colores = ['#eceef3', '#eceef3', '#f5b942'];
+    var lista = cifras(resumen, op);
+    if (resumen.resultado.resultado < 0) colores[0] = '#ff7a6b';
+    var hueco = (H - y - 260) / lista.length;
+    lista.forEach(function (c, i) {
+      var top = y + i * hueco;
+      ctx.fillStyle = '#171a21';
+      ctx.fillRect(M, top, W - 2 * M, hueco - 28);
+      ctx.fillStyle = i === lista.length - 1 ? '#f5b942' : '#2a2f3a';
+      ctx.fillRect(M, top, 10, hueco - 28);
+      ctx.fillStyle = '#a3abba';
+      ctx.font = '600 32px ' + FUENTE;
+      ctx.fillText(c.etiqueta.toUpperCase(), M + 44, top + 62);
+      ctx.fillStyle = colores[i] || '#eceef3';
+      var valor = c.valor.replace(/ /g, ' ');
+      ctx.font = ajustarTamano(ctx, valor, '800', 92, W - 2 * M - 88);
+      ctx.fillText(valor, M + 44, top + 160);
+      if (c.extra) {
+        ctx.fillStyle = '#a3abba';
+        ctx.font = '500 36px ' + FUENTE;
+        ctx.fillText(c.extra.replace(/ /g, ' '), M + 44, top + 214);
+      }
+    });
+
+    var yPie = H - 190;
+    if (resumen.ejemplo) {
+      ctx.fillStyle = '#ffd98a';
+      ctx.font = '700 30px ' + FUENTE;
+      ctx.fillText(t('aviso.ejemplo').split('·')[0].trim(), M, yPie - 40);
+    }
+    ctx.fillStyle = '#45d39a';
+    ctx.font = '600 34px ' + FUENTE;
+    ctx.fillText('🔒 ' + t('compartir.frase'), M, yPie + 20);
+    ctx.fillStyle = '#a3abba';
+    ctx.font = '500 30px ' + FUENTE;
+    var pie = [op.marca, op.enlace].filter(Boolean).join(' · ');
+    if (pie) partirLineas(ctx, pie, W - 2 * M).slice(0, 2).forEach(function (l, i) { ctx.fillText(l, M, yPie + 80 + i * 40); });
+    return canvas;
+  }
+
+  /* ---------- Bloque en la página ---------- */
+  var ctxApp = null;
+  var nodos = {};
+
+  function opciones() {
+    return {
+      t: ctxApp.t, F: ctxApp.F,
+      mostrarImportes: nodos.importes.checked,
+      enlace: String(ctxApp.config.ENLACE_PUBLICO || '').trim(),
+      marca: String(ctxApp.config.MARCA || '').trim()
+    };
+  }
+
+  function hayDatos() {
+    var u = ctxApp.estado.ultimo;
+    return u && u.resultado.ventas > 0;
+  }
+
+  function copiarTexto(texto) {
+    function respaldo() {
+      nodos.texto.hidden = false;
+      nodos.texto.focus();
+      nodos.texto.select();
+      var ok = false;
+      try { ok = document.execCommand('copy'); } catch (e) { ok = false; }
+      return Promise.resolve(ok);
+    }
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      return navigator.clipboard.writeText(texto).then(function () { return true; }, respaldo);
+    }
+    return respaldo();
+  }
+
+  function alCopiar() {
+    if (!hayDatos()) { nodos.estado.textContent = ctxApp.t('compartir.sin_datos'); return; }
+    var texto = generarTexto(ctxApp.estado.ultimo, opciones());
+    nodos.texto.value = texto;
+    nodos.texto.hidden = false;
+    copiarTexto(texto).then(function (ok) {
+      nodos.estado.textContent = ctxApp.t(ok ? 'compartir.copiado' : 'compartir.no_copiado');
+    });
+  }
+
+  function alImagen() {
+    if (!hayDatos()) { nodos.estado.textContent = ctxApp.t('compartir.sin_datos'); return; }
+    var canvas = document.createElement('canvas');
+    dibujar(canvas, ctxApp.estado.ultimo, opciones());
+    var url = canvas.toDataURL('image/png');
+    nodos.img.src = url;
+    nodos.img.hidden = false;
+    nodos.descargar.href = url;
+    nodos.descargar.setAttribute('download', 'mi-resultado.png');
+    nodos.descargar.hidden = false;
+    nodos.pulsacion.hidden = false;
+  }
+
+  function montar(ctx) {
+    ctxApp = ctx;
+    var t = ctx.t, el = ctx.el;
+    var caja = document.getElementById('bloque-compartir');
+    nodos.importes = el('input', { type: 'checkbox', id: 'mostrar-importes' });
+    nodos.importes.addEventListener('change', actualizar);
+    nodos.estado = el('p', { clase: 'estado-copia', role: 'status' });
+    nodos.texto = el('textarea', { clase: 'texto-compartir', readonly: true, hidden: true, 'aria-label': t('compartir.copiar') });
+    nodos.img = el('img', { clase: 'imagen-compartir', alt: t('compartir.alt_imagen'), width: '1080', height: '1350', hidden: true });
+    nodos.descargar = el('a', { clase: 'boton secundario', id: 'btn-descargar', hidden: true, texto: t('compartir.descargar') });
+    nodos.pulsacion = el('p', { clase: 'nota', hidden: true, texto: t('compartir.pulsacion') });
+    caja.appendChild(el('h2', { id: 't-compartir', texto: t('compartir.titulo') }));
+    caja.appendChild(el('div', { clase: 'compartir-opciones' }, [
+      nodos.importes, el('label', { 'for': 'mostrar-importes', texto: t('compartir.mostrar_importes') })
+    ]));
+    caja.appendChild(el('div', { clase: 'botones' }, [
+      el('button', { type: 'button', clase: 'boton primario', id: 'btn-copiar', texto: t('compartir.copiar'), onclick: alCopiar }),
+      el('button', { type: 'button', clase: 'boton secundario', id: 'btn-imagen', texto: t('compartir.imagen'), onclick: alImagen })
+    ]));
+    caja.appendChild(nodos.estado);
+    caja.appendChild(nodos.texto);
+    caja.appendChild(nodos.img);
+    caja.appendChild(nodos.pulsacion);
+    caja.appendChild(el('div', { clase: 'botones' }, [nodos.descargar]));
+  }
+
+  /* Al cambiar los datos, lo ya generado queda viejo: se actualiza el texto
+     visible y se retira la imagen para no compartir cifras desfasadas. */
+  function actualizar() {
+    if (!ctxApp) return;
+    nodos.estado.textContent = '';
+    if (!nodos.texto.hidden && hayDatos()) nodos.texto.value = generarTexto(ctxApp.estado.ultimo, opciones());
+    if (!nodos.img.hidden) {
+      nodos.img.hidden = true; nodos.img.removeAttribute('src');
+      nodos.descargar.hidden = true; nodos.descargar.removeAttribute('href');
+      nodos.pulsacion.hidden = true;
+    }
+  }
+
+  return { generarTexto: generarTexto, dibujar: dibujar, montar: montar, actualizar: actualizar };
+});
+
+/* ==== captacion-off.js ==== */
+/* Captación DESACTIVADA (ENDPOINT_AVISO vacío). Este módulo no contiene ningún
+   código de red: solo muestra la oferta y un botón deshabilitado «Próximamente». */
+(function (raiz, fabrica) {
+  var m = fabrica();
+  if (typeof module === 'object' && module.exports) module.exports = m;
+  else raiz.Captacion = m;
+})(typeof self !== 'undefined' ? self : this, function () {
+  'use strict';
+  function montar(ctx) {
+    var t = ctx.t, el = ctx.el;
+    var caja = document.getElementById('bloque-captacion');
+    caja.className += ' captacion';
+    caja.appendChild(el('h2', { id: 't-captacion', texto: t('captacion.titulo') }));
+    caja.appendChild(el('p', { texto: String(ctx.config.TEXTO_OFERTA || '').trim() || t('captacion.oferta_defecto') }));
+    caja.appendChild(el('button', { type: 'button', clase: 'boton', id: 'btn-aviso', disabled: true, texto: t('captacion.proximamente') }));
+  }
+  return { activa: false, montar: montar };
+});
+
+/* ==== app.js ==== */
+/* Interfaz. Lee los datos incrustados en la página, pinta el formulario del
+   sector elegido y recalcula al escribir. Nada se guarda fuera de esta pestaña:
+   el estado vive en la variable `estado` y desaparece al recargar. */
+(function () {
+  'use strict';
+
+  function leerJSON(id) {
+    var nodo = document.getElementById(id);
+    try { return JSON.parse(nodo.textContent); } catch (e) { return null; }
+  }
+
+  var DATOS = leerJSON('datos-sectores') || { sectores: [] };
+  var TEXTOS = { es: leerJSON('textos-es') || {}, en: leerJSON('textos-en') || {} };
+  var F = window.Formato;
+  var C = window.Calculadora;
+
+  var estado = {
+    idioma: 'es',
+    sectorId: null,
+    valores: {},      // { sectorId: { partidaId: texto } }
+    ejemplo: {},      // { sectorId: true } mientras los datos sean los del ejemplo
+    ultimo: null      // último resultado calculado (para compartir)
+  };
+
+  function t(clave, vars) {
+    var txt = TEXTOS[estado.idioma][clave];
+    if (txt === undefined) txt = TEXTOS.es[clave];
+    if (txt === undefined) txt = clave;
+    if (vars) Object.keys(vars).forEach(function (k) { txt = txt.split('{' + k + '}').join(vars[k]); });
+    return txt;
+  }
+
+  function el(etiqueta, atributos, hijos) {
+    var n = document.createElement(etiqueta);
+    if (atributos) Object.keys(atributos).forEach(function (k) {
+      var v = atributos[k];
+      if (v === null || v === undefined || v === false) return;
+      if (k === 'texto') n.textContent = v;
+      else if (k === 'clase') n.className = v;
+      else if (k.slice(0, 2) === 'on') n.addEventListener(k.slice(2), v);
+      else n.setAttribute(k, v === true ? '' : v);
+    });
+    (hijos || []).forEach(function (h) { if (h) n.appendChild(typeof h === 'string' ? document.createTextNode(h) : h); });
+    return n;
+  }
+
+  function sectorActual() {
+    for (var i = 0; i < DATOS.sectores.length; i++) if (DATOS.sectores[i].id === estado.sectorId) return DATOS.sectores[i];
+    return null;
+  }
+
+  function aplicarTextosFijos() {
+    document.documentElement.lang = estado.idioma;
+    var nodos = document.querySelectorAll('[data-t]');
+    for (var i = 0; i < nodos.length; i++) nodos[i].textContent = t(nodos[i].getAttribute('data-t'));
+    var cfg = window.CONFIG || {};
+    document.getElementById('texto-privacidad').textContent = t(cfg.ENDPOINT_AVISO ? 'app.privacidad_captacion' : 'app.privacidad');
+    document.title = t('app.titulo');
+  }
+
+  /* ---------- Selector de sector ---------- */
+  function pintarSectores() {
+    var caja = document.getElementById('sectores');
+    DATOS.sectores.forEach(function (s) {
+      var id = 'sector-' + s.id;
+      var radio = el('input', { type: 'radio', name: 'sector', id: id, value: s.id });
+      radio.addEventListener('change', function () { elegirSector(s.id); });
+      caja.appendChild(radio);
+      caja.appendChild(el('label', { 'for': id, texto: s.nombre }));
+    });
+  }
+
+  function elegirSector(id) {
+    estado.sectorId = id;
+    if (!estado.valores[id]) estado.valores[id] = {};
+    var radio = document.getElementById('sector-' + id);
+    if (radio && !radio.checked) radio.checked = true;
+    document.getElementById('zona-calculo').hidden = false;
+    document.getElementById('bloque-captacion').hidden = false;
+    pintarEntradas();
+    recalcular();
+  }
+
+  /* ---------- Entradas ---------- */
+  function pintarEntradas() {
+    var s = sectorActual();
+    var form = document.getElementById('entradas');
+    form.textContent = '';
+    var vals = estado.valores[s.id];
+    s.partidas.forEach(function (p) {
+      var idInput = 'in-' + p.id;
+      var input = el('input', {
+        id: idInput, name: p.id, type: 'text', inputmode: 'decimal', enterkeyhint: 'next',
+        autocomplete: 'off', spellcheck: 'false', placeholder: '0',
+        'aria-describedby': 'ay-' + p.id + ' vivo-' + p.id + ' err-' + p.id
+      });
+      input.value = vals[p.id] || '';
+      input.addEventListener('input', function () {
+        vals[p.id] = input.value;
+        estado.ejemplo[s.id] = false;
+        recalcular();
+      });
+      input.addEventListener('keydown', function (ev) {
+        // Intro pasa al siguiente campo, como la tecla «siguiente» del móvil.
+        if (ev.key !== 'Enter') return;
+        ev.preventDefault();
+        var campos = form.querySelectorAll('input');
+        for (var i = 0; i < campos.length - 1; i++) if (campos[i] === input) { campos[i + 1].focus(); return; }
+        input.blur();
+        document.getElementById('resultados').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
+      input.addEventListener('blur', function () {
+        // Al salir del campo se muestra el número con formato español (24000 → 24.000).
+        var r = C.parsearNumero(input.value);
+        if (!r.vacio && !r.error && r.valor >= 0) {
+          var txt = F.entrada(r.valor);
+          if (txt !== input.value) { input.value = txt; vals[p.id] = txt; }
+        }
+      });
+      form.appendChild(el('div', { clase: 'campo ' + (p.tipo === 'ingreso' ? 'ingreso' : 'coste'), 'data-partida': p.id }, [
+        el('label', { 'for': idInput, texto: p.nombre }),
+        el('span', { clase: 'ayuda', id: 'ay-' + p.id, texto: p.ayuda }),
+        el('div', { clase: 'caja' }, [input, el('span', { clase: 'unidad', 'aria-hidden': 'true', texto: '€' })]),
+        el('div', { clase: 'vivo', id: 'vivo-' + p.id }),
+        el('div', { clase: 'error', id: 'err-' + p.id, role: 'alert' })
+      ]));
+    });
+  }
+
+  function cargarEjemplo() {
+    var s = sectorActual();
+    if (!s) return;
+    var copia = {};
+    Object.keys(s.ejemplo || {}).forEach(function (k) { copia[k] = s.ejemplo[k]; });
+    estado.valores[s.id] = copia;
+    estado.ejemplo[s.id] = true;
+    pintarEntradas();
+    recalcular();
+  }
+
+  function borrar() {
+    var s = sectorActual();
+    if (!s) return;
+    estado.valores[s.id] = {};
+    estado.ejemplo[s.id] = false;
+    pintarEntradas();
+    recalcular();
+  }
+
+  /* ---------- Resultados ---------- */
+  function partidaPorId(s, id) {
+    for (var i = 0; i < s.partidas.length; i++) if (s.partidas[i].id === id) return s.partidas[i];
+    return null;
+  }
+
+  function recalcular() {
+    var s = sectorActual();
+    if (!s) return;
+    var r = C.calcular(s, estado.valores[s.id]);
+    estado.ultimo = { sector: s, resultado: r, ejemplo: !!estado.ejemplo[s.id] };
+    document.getElementById('aviso-ejemplo').hidden = !estado.ejemplo[s.id];
+    pintarVivos(s, r);
+    pintarCifras(s, r);
+    pintarTicket(s, r);
+    pintarSemaforo(s, r);
+    document.getElementById('sin-ventas').hidden = r.ventas > 0;
+    pintarBarra(s, r);
+    anunciar(s, r);
+    if (window.Compartir) window.Compartir.actualizar();
+  }
+
+  function pintarVivos(s, r) {
+    var errores = {};
+    r.avisos.forEach(function (a) { errores[a.id] = a.clave; });
+    s.partidas.forEach(function (p) {
+      var vivo = document.getElementById('vivo-' + p.id);
+      var err = document.getElementById('err-' + p.id);
+      var input = document.getElementById('in-' + p.id);
+      if (!vivo) return;
+      err.textContent = errores[p.id] ? t(errores[p.id]) : '';
+      input.setAttribute('aria-invalid', errores[p.id] ? 'true' : 'false');
+      if (p.tipo === 'ingreso') {
+        var varios = s.partidas.filter(function (x) { return x.tipo === 'ingreso'; }).length > 1;
+        vivo.textContent = varios && r.importes[p.id] > 0 && r.ventas > 0 ? F.porcentaje(r.importes[p.id] / r.ventas) + ' ' + t('entradas.de_ventas') : '';
+        return;
+      }
+      var linea = null;
+      r.lineas.forEach(function (l) { if (l.id === p.id) linea = l; });
+      var partes = [];
+      if (linea.proporcion !== null && linea.importe > 0) {
+        partes.push(F.porcentaje(linea.proporcion) + ' ' + t(p.base ? 'entradas.de_base' : 'entradas.de_ventas'));
+      }
+      if (p.rango) partes.push(t('entradas.habitual') + ' ' + F.rango(p.rango));
+      if (linea.estado === 'vigilar') partes.push(ICONOS.vigilar + ' ' + t('estado.vigilar'));
+      vivo.textContent = partes.join(' · ');
+      vivo.className = 'vivo' + (linea.estado === 'vigilar' ? ' alerta' : '');
+    });
+  }
+
+  function cifra(clase, etiqueta, valor, extra) {
+    return el('div', { clase: 'cifra ' + clase }, [
+      el('div', { clase: 'etiqueta', texto: etiqueta }),
+      el('div', { clase: 'valor', texto: valor }),
+      extra ? el('div', { clase: 'extra', texto: extra }) : null
+    ]);
+  }
+
+  function pintarCifras(s, r) {
+    var caja = document.getElementById('cifras');
+    caja.textContent = '';
+    var hayVentas = r.ventas > 0;
+    caja.appendChild(cifra(r.resultado < 0 ? 'resultado negativo' : 'resultado',
+      s.etiquetaResultado || t('cifra.resultado'),
+      F.euros(r.resultado),
+      hayVentas ? F.porcentaje(r.margen) + ' ' + t('cifra.margen') : null));
+    if (r.costePrincipal) {
+      var cp = r.costePrincipal;
+      var extra = s.costePrincipal.explicacion || '';
+      if (cp.rango) extra += (extra ? ' · ' : '') + t('entradas.habitual') + ' ' + F.rango(cp.rango) + ' (' + t('calidad.' + cp.rango.calidad) + ')';
+      if (cp.estado === 'vigilar' || cp.estado === 'en_rango' || cp.estado === 'por_debajo') extra += ' · ' + t('estado.' + cp.estado);
+      caja.appendChild(cifra('principal e-' + cp.estado, s.costePrincipal.nombre + ' ' + t('cifra.sobre_ventas'), F.porcentaje(cp.proporcion), extra));
+    }
+    caja.appendChild(cifra('fuga', t('cifra.fuga'),
+      F.euros(r.fugaMes) + ' ' + t('cifra.fuga_mes'),
+      F.euros(r.fugaAnio) + ' ' + t('cifra.fuga_anio')));
+  }
+
+  function filaTicket(nombre, valor, clase, extra) {
+    return el('div', { clase: 'fila ' + (clase || '') }, [
+      el('span', {}, [nombre, extra ? el('span', { clase: 'pc', texto: ' ' + extra }) : null]),
+      el('span', { texto: valor })
+    ]);
+  }
+
+  function pintarTicket(s, r) {
+    var tk = document.getElementById('ticket');
+    tk.textContent = '';
+    tk.appendChild(el('h3', { id: 't-ticket', texto: t('ticket.titulo') }));
+    s.partidas.forEach(function (p) {
+      if (p.tipo === 'ingreso') tk.appendChild(filaTicket(p.nombre, F.euros(r.importes[p.id])));
+    });
+    tk.appendChild(filaTicket(t('ticket.ventas'), F.euros(r.ventas), 'total'));
+    tk.appendChild(el('div', { clase: 'sep' }));
+    r.lineas.forEach(function (l) {
+      var p = partidaPorId(s, l.id);
+      tk.appendChild(filaTicket(p.nombre, (l.importe > 0 ? '-' : '') + F.euros(l.importe), '', l.proporcionVentas !== null ? F.porcentaje(l.proporcionVentas) : ''));
+    });
+    tk.appendChild(filaTicket(t('ticket.costes'), (r.totalCostes > 0 ? '-' : '') + F.euros(r.totalCostes), '', r.ventas > 0 ? F.porcentaje(r.totalCostes / r.ventas) : ''));
+    tk.appendChild(el('div', { clase: 'sep' }));
+    tk.appendChild(filaTicket(s.etiquetaResultado || t('cifra.resultado'), F.euros(r.resultado), 'total', r.margen !== null ? F.porcentaje(r.margen) : ''));
+  }
+
+  var ICONOS = { vigilar: '▲', en_rango: '✓', por_debajo: '▼', sin_dato: '·', sin_ventas: '·', sin_rango: '·' };
+
+  function textoFuente(rango) {
+    if (!rango) return null;
+    if (rango.calidad === 'sin_fuente' || !rango.fuente || !rango.fuente.url) {
+      return t('fuente.ninguna') + (rango.fuente && rango.fuente.nota ? ' ' + rango.fuente.nota : '');
+    }
+    // Texto plano, sin enlace: la página no hace ninguna petición ni navega fuera.
+    return t('fuente.consultada') + ': ' + rango.fuente.url + ' (' + t('fuente.fecha') + ' ' + rango.fuente.fecha + ')' +
+      (rango.fuente.nota ? '. ' + rango.fuente.nota : '');
+  }
+
+  function pintarSemaforo(s, r) {
+    var ul = document.getElementById('semaforo');
+    ul.textContent = '';
+    r.lineas.forEach(function (l) {
+      var p = partidaPorId(s, l.id);
+      var detalle = l.estado === 'vigilar'
+        ? t('estado.vigilar_detalle', { euros: F.euros(l.fuga) })
+        : t('estado.' + l.estado + '_detalle');
+      var datos = [];
+      if (l.proporcion !== null && l.importe > 0) datos.push(F.porcentaje(l.proporcion) + ' ' + t(p.base ? 'entradas.de_base' : 'entradas.de_ventas'));
+      if (l.rango) datos.push(t('entradas.habitual') + ' ' + F.rango(l.rango));
+      var li = el('li', { clase: 'e-' + l.estado }, [
+        el('div', { clase: 'cab' }, [
+          el('span', { clase: 'nombre', texto: p.nombre }),
+          el('span', { clase: 'estado', texto: ICONOS[l.estado] + ' ' + t('estado.' + l.estado) })
+        ]),
+        datos.length ? el('div', { clase: 'datos', texto: datos.join(' · ') }) : null,
+        el('div', { clase: 'detalle', texto: detalle }),
+        l.rango ? el('span', { clase: 'calidad ' + l.rango.calidad, texto: t('calidad.' + l.rango.calidad) }) : null,
+        l.rango ? el('div', { clase: 'fuente', texto: textoFuente(l.rango) }) : null
+      ]);
+      ul.appendChild(li);
+    });
+  }
+
+  /* Resumen para lectores de pantalla: se anuncia cuando la persona deja de
+     escribir (1 s), no a cada tecla. */
+  var temporizadorAnuncio = null;
+  function anunciar(s, r) {
+    clearTimeout(temporizadorAnuncio);
+    temporizadorAnuncio = setTimeout(function () {
+      var nodo = document.getElementById('anuncio');
+      if (r.ventas <= 0) { nodo.textContent = t('resultados.sin_ventas'); return; }
+      nodo.textContent = t('anuncio.resumen', {
+        resultado: F.euros(r.resultado),
+        margen: F.porcentaje(r.margen),
+        fuga: F.euros(r.fugaMes),
+        vigilar: String(r.lineas.filter(function (l) { return l.estado === 'vigilar'; }).length)
+      });
+    }, 1000);
+  }
+
+  /* ---------- Barra de resumen ---------- */
+  var resultadosVisibles = false;
+  function pintarBarra(s, r) {
+    var barra = document.getElementById('barra');
+    var txt = document.getElementById('barra-texto');
+    txt.textContent = '';
+    txt.appendChild(document.createTextNode(t('barra.fuga') + ': '));
+    txt.appendChild(el('b', { texto: F.euros(r.fugaMes) + ' ' + t('cifra.fuga_mes') }));
+    txt.appendChild(document.createTextNode(' · ' + t('barra.resultado') + ': ' + F.euros(r.resultado)));
+    barra.hidden = resultadosVisibles || r.ventas <= 0;
+  }
+
+  function vigilarResultados() {
+    var zona = document.getElementById('resultados');
+    if (!('IntersectionObserver' in window)) return;
+    new IntersectionObserver(function (entradas) {
+      resultadosVisibles = entradas[0].isIntersecting;
+      if (estado.ultimo) pintarBarra(estado.ultimo.sector, estado.ultimo.resultado);
+    }).observe(zona);
+  }
+
+  /* ---------- Idioma ---------- */
+  // El selector solo aparece si en.json está marcado como completo.
+  function pintarIdiomas() {
+    if (!TEXTOS.en._completo) return;
+    var caja = document.getElementById('selector-idioma');
+    var sel = el('select', { id: 'idioma', 'aria-label': t('idioma.etiqueta') }, [
+      el('option', { value: 'es', texto: 'Español' }), el('option', { value: 'en', texto: 'English' })
+    ]);
+    sel.addEventListener('change', function () {
+      estado.idioma = sel.value;
+      aplicarTextosFijos();
+      if (estado.sectorId) { pintarEntradas(); recalcular(); }
+    });
+    caja.appendChild(sel);
+    caja.hidden = false;
+  }
+
+  /* ---------- Arranque ---------- */
+  function iniciar() {
+    aplicarTextosFijos();
+    pintarSectores();
+    pintarIdiomas();
+    vigilarResultados();
+    document.getElementById('barra-ver').addEventListener('click', function () {
+      document.getElementById('resultados').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+    document.getElementById('btn-ejemplo').addEventListener('click', cargarEjemplo);
+    document.getElementById('btn-borrar').addEventListener('click', borrar);
+    if (window.Compartir) window.Compartir.montar({ t: t, el: el, F: F, estado: estado, config: window.CONFIG || {} });
+    if (window.Captacion) window.Captacion.montar({ t: t, el: el, estado: estado, config: window.CONFIG || {} });
+  }
+
+  window.App = { t: t, elegirSector: elegirSector, cargarEjemplo: cargarEjemplo, estado: estado };
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', iniciar);
+  else iniciar();
+})();
+
+</script>
+</body>
+</html>
